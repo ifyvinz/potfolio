@@ -15,20 +15,20 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
 
     - name: Install Dependencies
-      working-directory: ./portfolio_backend  # Navigate to where requirements.txt is located
+      working-directory: ./backend/portfolio_backend  # Navigate to where requirements.txt is located
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Run Tests
-      working-directory: ./portfolio_backend  # Navigate to where manage.py is located
+      working-directory: ./backend/portfolio_backend  # Navigate to where manage.py is located
       run: python manage.py test
 
     - name: Configure AWS Credentials
@@ -44,20 +44,20 @@ jobs:
         terraform_version: 1.4.6
 
     - name: Terraform Init
-      working-directory: ./terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./backend/portfolio_backend/terraform  # Navigate to where Terraform configuration is located
       run: terraform init
 
     - name: Terraform Plan
-      working-directory: ./terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./backend/portfolio_backend/terraform  # Navigate to where Terraform configuration is located
       run: terraform plan
 
     - name: Terraform Apply
-      working-directory: ./terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./backend/portfolio_backend/terraform  # Navigate to where Terraform configuration is located
       run: terraform apply -auto-approve
 
     - name: Fetch EC2 Public IP
       id: output
-      working-directory: ./terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./backend/portfolio_backend/terraform  # Navigate to where Terraform configuration is located
       run: echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
 
     - name: Post-deploy Verification
