@@ -28,7 +28,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Tests
-      working-directory: ./backend/portfolio_backend  # Navigate to where manage.py is located
+      working-directory: ./portfolio_backend  # Navigate to where manage.py is located
       run: python manage.py test
 
     - name: Configure AWS Credentials
