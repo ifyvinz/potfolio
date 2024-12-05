@@ -44,11 +44,11 @@ jobs:
         terraform_version: 1.4.6
 
     - name: Terraform Init
-      working-directory: ./backend/portfolio_backend/terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./portfolio_backend/terraform  # Navigate to where Terraform configuration is located
       run: terraform init
 
     - name: Terraform Plan
-      working-directory: ./backend/portfolio_backend/terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./portfolio_backend/terraform  # Navigate to where Terraform configuration is located
       run: terraform plan
 
     - name: Terraform Apply
