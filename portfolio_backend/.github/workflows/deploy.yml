@@ -28,7 +28,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Tests
-      working-directory: ./portfolio_backend  # Correct path to where manage.py is located
+      working-directory: . # Correct path to portfolio_backend
       run: python manage.py test
 
     - name: Configure AWS Credentials
@@ -44,15 +44,15 @@ jobs:
         terraform_version: 1.4.6
 
     - name: Terraform Init
-      working-directory: ./portfolio_backend/terraform  # Correct path to Terraform config
+      working-directory: ./terraform  # Correct path to Terraform config
       run: terraform init
 
     - name: Terraform Plan
-      working-directory: ./portfolio_backend/terraform  # Correct path to Terraform config
+      working-directory: ./terraform  # Correct path to Terraform config
       run: terraform plan
 
     - name: Terraform Apply
-      working-directory: ./portfolio_backend/terraform  # Correct path to Terraform config
+      working-directory: ./terraform  # Correct path to Terraform config
       run: terraform apply -auto-approve
 
     - name: Fetch EC2 Public IP
