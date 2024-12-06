@@ -10,7 +10,7 @@ jobs:
     name: Deploy to AWS EC2
     runs-on: ubuntu-latest
 
-    environment: potfolio  # the environment name on GitHub
+    environment: portfolio  # the environment name on GitHub
 
     steps:
     - name: Checkout Repository
@@ -22,13 +22,13 @@ jobs:
         python-version: '3.9'
 
     - name: Install Dependencies
-      working-directory: ./backend/portfolio_backend  # Navigate to where requirements.txt is located
+      working-directory: ./portfolio_backend  # Correct path to portfolio_backend
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Run Tests
-      working-directory: ./portfolio_backend  # Navigate to where manage.py is located
+      working-directory: ./portfolio_backend  # Correct path to where manage.py is located
       run: python manage.py test
 
     - name: Configure AWS Credentials
@@ -44,20 +44,20 @@ jobs:
         terraform_version: 1.4.6
 
     - name: Terraform Init
-      working-directory: ./portfolio_backend/terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./portfolio_backend/terraform  # Correct path to Terraform config
       run: terraform init
 
     - name: Terraform Plan
-      working-directory: ./portfolio_backend/terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./portfolio_backend/terraform  # Correct path to Terraform config
       run: terraform plan
 
     - name: Terraform Apply
-      working-directory: ./backend/portfolio_backend/terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./portfolio_backend/terraform  # Correct path to Terraform config
       run: terraform apply -auto-approve
 
     - name: Fetch EC2 Public IP
       id: output
-      working-directory: ./backend/portfolio_backend/terraform  # Navigate to where Terraform configuration is located
+      working-directory: ./portfolio_backend/terraform  # Correct path to Terraform config
       run: echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
 
     - name: Post-deploy Verification
