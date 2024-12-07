@@ -87,12 +87,12 @@ resource "aws_security_group" "portfolio_sg" {
 
 # EC2 Instance
 resource "aws_instance" "portfolio_ec2" {
-  ami                    = var.ec2_ami
-  instance_type          = var.ec2_instance_type
-  subnet_id              = aws_subnet.public_subnet.id
-  security_group_ids     = [aws_security_group.portfolio_sg.id]
+  ami                         = var.ec2_ami
+  instance_type               = var.ec2_instance_type
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.portfolio_sg.id] # Fixed argument
   associate_public_ip_address = true
-  key_name               = aws_key_pair.generated.key_name
+  key_name                    = aws_key_pair.generated.key_name
 
   tags = {
     Name = var.ec2_name
