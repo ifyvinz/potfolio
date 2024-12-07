@@ -93,15 +93,42 @@ jobs:
           echo DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }} >> .env
           echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env
 
-      # Step 10: Deploy Docker Compose services on EC2
+      # Step 10: Upload SSH Key to GitHub Secrets (Base64 Encoding)
+      - name: Upload SSH Key to GitHub Secrets
+        run: |
+          # Encode private key to Base64
+          base64 -w 0 MyAWSKey.pem > MyAWSKey.pem.base64
+
+          # Set up GitHub Token and other variables
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER=${{ github.repository_owner }}
+          REPO_NAME=${{ github.repository }}
+          SECRET_NAME="EC2_SSH_KEY"
+          PRIVATE_KEY_PATH="MyAWSKey.pem.base64"
+
+          # Read the Base64-encoded key
+          PRIVATE_KEY=$(cat $PRIVATE_KEY_PATH)
+
+          # Upload to GitHub Secrets
+          curl -X PUT \
+               -H "Authorization: token $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github.v3+json" \
+               -d '{"encrypted_value": "'"$PRIVATE_KEY"'"}' \
+               "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/secrets/$SECRET_NAME"
+
+      # Step 11: Deploy Docker Compose services on EC2
       - name: Deploy Docker Compose Services
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ubuntu@${{ env.EC2_IP }} << EOF
+          # Use SSH Key stored in GitHub Secrets for the EC2 instance
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_ssh_key.pem
+          chmod 600 ec2_ssh_key.pem
+          ssh -o StrictHostKeyChecking=no -i ec2_ssh_key.pem ubuntu@${{ env.EC2_IP }} << EOF
             docker-compose down
             docker-compose up -d
           EOF
+          rm -f ec2_ssh_key.pem
 
-      # Step 11: Post-deployment verification
+      # Step 12: Post-deployment verification
       - name: Post-deploy Verification
         run: |
           echo "Deployment completed."
