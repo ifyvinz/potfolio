@@ -56,15 +56,17 @@ jobs:
         with:
           terraform_version: 1.4.6
 
-      # Step 7: Terraform Destroy (Remove Previous Resources)
-      - name: Terraform Destroy
-        working-directory: ./terraform
-        run: terraform destroy -auto-approve
+    
 
-      # Step 8: Terraform Init, Plan, and Apply
+      # Step 7: Terraform Init, Plan, and Apply
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init
+        
+      # Step 8: Terraform Destroy (Remove Previous Resources)
+      - name: Terraform Destroy
+        working-directory: ./terraform
+        run: terraform destroy -auto-approve
 
       - name: Terraform Plan
         working-directory: ./terraform
