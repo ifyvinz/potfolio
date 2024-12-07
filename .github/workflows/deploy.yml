@@ -9,6 +9,8 @@ jobs:
   deploy:
     name: Deploy Django App
     runs-on: ubuntu-latest
+    environment: portfolio  # Specify the environment here
+
 
     steps:
       # Step 1: Checkout the repository
@@ -35,9 +37,9 @@ jobs:
       #     python manage.py migrate
 
       # Step 5: Commented out - Run Tests
-      # - name: Run Tests
-      #   working-directory: ./portfolio_backend
-      #   run: python manage.py test
+      - name: Run Tests
+        working-directory: ./portfolio_backend
+        run: python manage.py test
 
       # Step 6: Debug AWS Secrets
       - name: Debug AWS Secrets
