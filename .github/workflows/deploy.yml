@@ -42,42 +42,23 @@ jobs:
             echo "AWS_SECRET_ACCESS_KEY is set"
           fi
 
-      # --- Terraform-related steps are commented out ---
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v3
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: eu-central-1
-
-      # - name: Install Terraform
-      #   uses: hashicorp/setup-terraform@v2
-      #   with:
-      #     terraform_version: 1.4.6
-
-      # - name: Terraform Init
-      #   working-directory: ./terraform
-      #   run: terraform init
-
-      # - name: Terraform Plan
-      #   working-directory: ./terraform
-      #   run: terraform plan
-
-      # - name: Terraform Apply
-      #   working-directory: ./terraform
-      #   run: terraform apply -auto-approve
-
       # Step 5: Deploy using SSH
       - name: Use SSH Key from GitHub Secrets for EC2 Deployment
         run: |
+          # Save the SSH private key to a file
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_ssh_key.pem
           chmod 600 ec2_ssh_key.pem
 
+          # SSH into the EC2 instance and run Docker Compose commands
           ssh -o StrictHostKeyChecking=no -i ec2_ssh_key.pem ubuntu@${{ secrets.EC2_IP }} << EOF
+            # Stop and remove existing containers
             docker-compose down
+
+            # Start containers in detached mode
             docker-compose up -d
           EOF
 
+          # Remove the private key after use
           rm -f ec2_ssh_key.pem
 
       # Step 6: Set environment secrets for Docker Compose
