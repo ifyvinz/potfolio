@@ -5,14 +5,14 @@ services:
     build:
       context: .
     command: >
-      sh -c "wait-for-it db:5432 -- "python manage.py migrate &&
-             python manage.py createsuperuser &&
+      sh -c "wait-for-it db:5432 --timeout=30 -- python manage.py migrate &&
+             python manage.py createsuperuser --noinput &&
              gunicorn portfolio_backend.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     env_file:
-      - .env  # Load environment variables from the .env file
+      - .env  # This loads the environment variables from the .env file, created in the GitHub Actions workflow
     expose:
       - 8000
     depends_on:
@@ -22,8 +22,11 @@ services:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - .env  # Load environment variables from the .env file
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST_AUTH_METHOD=trust  # Optional for local dev/testing, ensure it's set up securely for prod
     ports:
       - "5432:5432"
 
