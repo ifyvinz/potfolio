@@ -37,7 +37,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 DEBUG=False
-ALLOWED_HOSTS=www.ifyvinz.com,ifyvinz.com
+ALLOWED_HOSTS = ['www.ifyvinz.com', 'ifyvinz.com']
+
 
 
 
