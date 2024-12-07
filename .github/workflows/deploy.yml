@@ -33,7 +33,7 @@ jobs:
       working-directory: ./portfolio_backend
       run: python manage.py test
 
-    # Step 5: Configure AWS credentials for Terraform
+    # Step 5: Configure AWS credentials for Terraforms
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
