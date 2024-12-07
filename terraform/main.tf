@@ -1,5 +1,3 @@
-# main.tf
-
 # Configure the AWS Provider
 provider "aws" {
   region = var.aws_region
@@ -10,6 +8,7 @@ resource "aws_vpc" "portfolio_vpc" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
+
   tags = {
     Name = var.vpc_name
   }
@@ -18,6 +17,7 @@ resource "aws_vpc" "portfolio_vpc" {
 # Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.portfolio_vpc.id
+
   tags = {
     Name = var.igw_name
   }
@@ -29,6 +29,7 @@ resource "aws_subnet" "public_subnet" {
   cidr_block              = var.public_subnet_cidr
   map_public_ip_on_launch = true
   availability_zone       = var.availability_zone
+
   tags = {
     Name = var.public_subnet_name
   }
@@ -37,10 +38,12 @@ resource "aws_subnet" "public_subnet" {
 # Route Table
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.portfolio_vpc.id
+
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
+
   tags = {
     Name = var.public_rt_name
   }
@@ -55,6 +58,7 @@ resource "aws_route_table_association" "public_rt_assoc" {
 # Security Group
 resource "aws_security_group" "portfolio_sg" {
   vpc_id = aws_vpc.portfolio_vpc.id
+
   ingress {
     from_port   = 22
     to_port     = 22
@@ -82,6 +86,7 @@ resource "aws_security_group" "portfolio_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   tags = {
     Name = var.sg_name
   }
@@ -94,7 +99,7 @@ resource "aws_instance" "portfolio_ec2" {
   subnet_id                   = aws_subnet.public_subnet.id
   vpc_security_group_ids      = [aws_security_group.portfolio_sg.id]
   associate_public_ip_address = true
-  key_name                    = "MyAWSKey" # Use existing key pair
+  key_name                    = "Portfolio_Key" # Use the new key pair name
 
   tags = {
     Name = var.ec2_name
