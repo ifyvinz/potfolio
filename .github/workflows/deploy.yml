@@ -44,8 +44,17 @@ jobs:
       # Step 6: Debug AWS Secrets
       - name: Debug AWS Secrets
         run: |
-          echo "AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}"  # Do not print the actual key, just ensure it's accessible.
-          echo "AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "AWS_ACCESS_KEY_ID is not set"
+          else
+            echo "AWS_ACCESS_KEY_ID is set"
+          fi
+          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "AWS_SECRET_ACCESS_KEY is not set"
+          else
+            echo "AWS_SECRET_ACCESS_KEY is set"
+          fi
+
 
       # Step 7: Configure AWS credentials for Terraform
       - name: Configure AWS Credentials
