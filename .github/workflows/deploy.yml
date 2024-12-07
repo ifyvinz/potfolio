@@ -61,10 +61,6 @@ jobs:
         working-directory: ./terraform
         run: terraform init
 
-      #- name: Terraform Destroy
-        #working-directory: ./terraform
-        #run: terraform destroy -auto-approve
-
       - name: Terraform Plan
         working-directory: ./terraform
         run: terraform plan
@@ -78,12 +74,13 @@ jobs:
         id: fetch_ip
         working-directory: ./terraform
         run: |
-          terraform output -raw ec2_public_ip
-        continue-on-error: false
+          terraform output -raw ec2_public_ip 2>/dev/null | tr -d '\n' > ec2_ip.txt
+          cat ec2_ip.txt >> $GITHUB_ENV
 
       - name: Set EC2 IP in GitHub Environment
         run: |
-          echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+          echo "EC2_IP=$(cat ec2_ip.txt)" >> $GITHUB_ENV
+          rm ec2_ip.txt
 
       - name: Verify EC2 IP
         run: |
