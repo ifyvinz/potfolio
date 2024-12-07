@@ -33,7 +33,7 @@ jobs:
       working-directory: ./portfolio_backend
       run: python manage.py test
 
-    # Step 5: Configure AWS credentials for Terraforms
+    # Step 5: Configure AWS credentials for Terraform
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
@@ -69,7 +69,7 @@ jobs:
     # Step 9: Set environment secrets for Docker Compose
     - name: Set Environment Variables for Docker Compose
       run: |
-        echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
+        echo POSTGRES_DB=${{ secrets.POSTGRES_DB}} >> .env
         echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
         echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
         echo POSTGRES_HOST=db >> .env
@@ -77,7 +77,7 @@ jobs:
         echo DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }} >> .env
         echo DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }} >> .env
         echo DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }} >> .env
-        echo EMAIL_HOST_PASSWORD= $${{secrets.EMAIL_HOST_PASSWORD }} >> .env
+        echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env
 
     # Step 10: Deploy Docker Compose services on EC2
     - name: Deploy Docker Compose Services
