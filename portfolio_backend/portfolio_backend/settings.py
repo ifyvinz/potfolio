@@ -118,8 +118,8 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB'),
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST', 'db'), # Name of the Docker service for the database
-        'PORT': os.getenv('POSTGRES_PORT', '5432'), # Default PostgreSQL port
+        'HOST': 'db', # Name of the Docker service for the database
+        'PORT': '5432', # Default PostgreSQL port
     }
 }
 
