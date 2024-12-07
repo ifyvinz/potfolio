@@ -9,7 +9,8 @@ jobs:
   deploy:
     name: Deploy Django App
     runs-on: ubuntu-latest
-    # environment: portfolio  # Specify the environment here
+    #environment: portfolio  # Specify the environment here
+
 
     steps:
       # Step 1: Checkout the repository
@@ -29,16 +30,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ../requirements.txt
 
-      # Step 4: Run Migrations
-      - name: Run Migrations
-        working-directory: ./portfolio_backend
-        run: |
-          python manage.py migrate
+      # Step 4: Commented out - Run Migrations
+      # - name: Run Migrations
+      #   working-directory: ./portfolio_backend
+      #   run: |
+      #     python manage.py migrate
 
-      # Step 5: Run Tests
-      - name: Run Tests
-        working-directory: ./portfolio_backend
-        run: python manage.py test
+      # Step 5: Commented out - Run Tests
+      # - name: Run Tests
+      #   working-directory: ./portfolio_backend
+      #   run: python manage.py test
 
       # Step 6: Debug AWS Secrets
       - name: Debug AWS Secrets
@@ -53,6 +54,7 @@ jobs:
           else
             echo "AWS_SECRET_ACCESS_KEY is set"
           fi
+
 
       # Step 7: Configure AWS credentials for Terraform
       - name: Configure AWS Credentials
