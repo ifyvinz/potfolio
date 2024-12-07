@@ -28,7 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ../requirements.txt
 
-      # Step 4: Debug AWS Secrets
+      # Step 4: Debug AWS Secrets (if needed)
       - name: Debug AWS Secrets
         run: |
           if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
@@ -51,10 +51,16 @@ jobs:
 
           # SSH into the EC2 instance and run Docker Compose commands
           ssh -o StrictHostKeyChecking=no -i ec2_ssh_key.pem ubuntu@${{ secrets.EC2_IP }} << EOF
-            # Stop and remove existing containers
-            docker-compose down
-
-            # Start containers in detached mode
+            # Navigate to the project directory
+            cd /home/ubuntu/<PROJECT_DIRECTORY> &&
+            
+            # Pull latest changes from main
+            git fetch --all &&
+            git reset --hard origin/main &&
+            git pull origin main &&
+            
+            # Stop and restart Docker Compose services
+            docker-compose down &&
             docker-compose up -d
           EOF
 
