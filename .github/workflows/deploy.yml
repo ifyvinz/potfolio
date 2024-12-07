@@ -56,7 +56,12 @@ jobs:
         with:
           terraform_version: 1.4.6
 
-      # Step 7: Terraform init, plan, and apply
+      # Step 7: Terraform Destroy (Remove Previous Resources)
+      - name: Terraform Destroy
+        working-directory: ./terraform
+        run: terraform destroy -auto-approve
+
+      # Step 8: Terraform Init, Plan, and Apply
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init
@@ -69,7 +74,7 @@ jobs:
         working-directory: ./terraform
         run: terraform apply -auto-approve
 
-      # Step 8: Fetch EC2 Public IP
+      # Step 9: Fetch EC2 Public IP
       - name: Fetch EC2 Public IP
         id: output
         working-directory: ./terraform
@@ -81,7 +86,7 @@ jobs:
         run: |
           echo "EC2_IP=${{ steps.output.outputs.ec2_public_ip }}" >> $GITHUB_ENV
 
-      # Step 9: Set environment secrets for Docker Compose
+      # Step 10: Set environment secrets for Docker Compose
       - name: Set Environment Variables for Docker Compose
         run: |
           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
@@ -94,37 +99,14 @@ jobs:
           echo DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }} >> .env
           echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env
 
-      # Step 10: Upload SSH Key to GitHub Secrets (Base64 Encoding)
-      - name: Upload SSH Key to GitHub Secrets
+      # Step 11: Use SSH Key for EC2 Deployment
+      - name: Use SSH Key from GitHub Secrets for EC2 Deployment
         run: |
-          # Encode private key to Base64
-          base64 -w 0 MyAWSKey.pem > MyAWSKey.pem.base64
-
-          # Set up GitHub Token and other variables
-          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          REPO_OWNER=${{ github.repository_owner }}
-          REPO_NAME=${{ github.repository }}
-          SECRET_NAME="EC2_SSH_KEY"
-          PRIVATE_KEY_PATH="MyAWSKey.pem.base64"
-
-          # Read the Base64-encoded key
-          PRIVATE_KEY=$(cat $PRIVATE_KEY_PATH)
-
-          # Upload to GitHub Secrets
-          curl -X PUT \
-               -H "Authorization: token $GITHUB_TOKEN" \
-               -H "Accept: application/vnd.github.v3+json" \
-               -d '{"encrypted_value": "'"$PRIVATE_KEY"'"}' \
-               "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/secrets/$SECRET_NAME"
-
-      # Step 11: Deploy Docker Compose Services
-      - name: Deploy Docker Compose Services
-        run: |
-          # Use SSH Key stored in GitHub Secrets for the EC2 instance
+          # Save the SSH key from GitHub Secrets to a file
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_ssh_key.pem
           chmod 600 ec2_ssh_key.pem
-          
-          # Deploy Docker Compose on EC2 instance
+
+          # Use the SSH key for further operations
           ssh -o StrictHostKeyChecking=no -i ec2_ssh_key.pem ubuntu@${{ env.EC2_IP }} << EOF
             docker-compose down
             docker-compose up -d
