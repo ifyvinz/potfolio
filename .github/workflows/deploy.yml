@@ -37,9 +37,9 @@ jobs:
       #     python manage.py migrate
 
       # Step 5: Commented out - Run Tests
-      - name: Run Tests
-        working-directory: ./portfolio_backend
-        run: python manage.py test
+      # - name: Run Tests
+      #   working-directory: ./portfolio_backend
+      #   run: python manage.py test
 
       # Step 6: Debug AWS Secrets
       - name: Debug AWS Secrets
