@@ -1,4 +1,4 @@
-name: Deploy Django App with Terraform and Docker Compose
+name: Deploy Django App with Docker Compose
 
 on:
   push:
@@ -42,63 +42,45 @@ jobs:
             echo "AWS_SECRET_ACCESS_KEY is set"
           fi
 
-      # Step 5: Configure AWS credentials for Terraform
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
+      # --- Terraform-related steps are commented out ---
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v3
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: eu-central-1
 
-      # Step 6: Install Terraform
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.4.6
+      # - name: Install Terraform
+      #   uses: hashicorp/setup-terraform@v2
+      #   with:
+      #     terraform_version: 1.4.6
 
-      # Step 7: Terraform Init, Plan, and Apply
-      - name: Terraform Init
-        working-directory: ./terraform
-        run: terraform init
+      # - name: Terraform Init
+      #   working-directory: ./terraform
+      #   run: terraform init
 
-      - name: Terraform Plan
-        working-directory: ./terraform
-        run: terraform plan
+      # - name: Terraform Plan
+      #   working-directory: ./terraform
+      #   run: terraform plan
 
-      - name: Terraform Apply
-        working-directory: ./terraform
-        run: terraform apply -auto-approve
+      # - name: Terraform Apply
+      #   working-directory: ./terraform
+      #   run: terraform apply -auto-approve
 
-      # Step 8: Fetch EC2 Public IP and Set in GitHub Environment
-      - name: Fetch EC2 Public IP
-        id: fetch_ip
-        working-directory: ./terraform
-        run: |
-          terraform output -raw ec2_public_ip 2>/dev/null | tr -d '\n' > ec2_ip.txt
-          cat ec2_ip.txt >> $GITHUB_ENV
-
-      - name: Set EC2 IP in GitHub Environment
-        run: |
-          echo "EC2_IP=$(cat ec2_ip.txt)" >> $GITHUB_ENV
-          rm ec2_ip.txt
-
-      - name: Verify EC2 IP
-        run: |
-          echo "EC2_IP=${{ env.EC2_IP }}"
-
-      # Step 9: Deploy using SSH
+      # Step 5: Deploy using SSH
       - name: Use SSH Key from GitHub Secrets for EC2 Deployment
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_ssh_key.pem
           chmod 600 ec2_ssh_key.pem
 
-          ssh -o StrictHostKeyChecking=no -i ec2_ssh_key.pem ubuntu@${{ env.EC2_IP }} << EOF
+          ssh -o StrictHostKeyChecking=no -i ec2_ssh_key.pem ubuntu@${{ secrets.EC2_IP }} << EOF
             docker-compose down
             docker-compose up -d
           EOF
+
           rm -f ec2_ssh_key.pem
 
-      # Step 10: Set environment secrets for Docker Compose
+      # Step 6: Set environment secrets for Docker Compose
       - name: Set Environment Variables for Docker Compose
         run: |
           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
@@ -111,8 +93,8 @@ jobs:
           echo DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }} >> .env
           echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env
 
-      # Step 11: Post-deployment verification
+      # Step 7: Post-deployment verification
       - name: Post-deploy Verification
         run: |
           echo "Deployment completed."
-          echo "Application is available at http://${{ env.EC2_IP }}/"
+          echo "Application is available at http://${{ secrets.EC2_IP }}/"
