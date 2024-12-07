@@ -1,10 +1,9 @@
-# AWS Region
+# Variables
 variable "aws_region" {
   type    = string
   default = "eu-central-1"
 }
 
-# VPC Configuration
 variable "vpc_name" {
   type    = string
   default = "Portfolio-VPC"
@@ -15,13 +14,11 @@ variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
 
-# Internet Gateway
 variable "igw_name" {
   type    = string
   default = "Portfolio-IGW"
 }
 
-# Subnet Configuration
 variable "public_subnet_name" {
   type    = string
   default = "Portfolio-Public-Subnet"
@@ -37,13 +34,11 @@ variable "availability_zone" {
   default = "eu-central-1a"
 }
 
-# Route Table
 variable "public_rt_name" {
   type    = string
   default = "Portfolio-Public-Route-Table"
 }
 
-# Security Group
 variable "sg_name" {
   type    = string
   default = "Portfolio-SG"
@@ -54,7 +49,6 @@ variable "allowed_cidr_blocks" {
   default = ["0.0.0.0/0"]
 }
 
-# EC2 Instance
 variable "ec2_name" {
   type    = string
   default = "Portfolio-EC2"

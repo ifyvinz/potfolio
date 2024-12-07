@@ -1,3 +1,5 @@
+# main.tf
+
 # Configure the AWS Provider
 provider "aws" {
   region = var.aws_region
@@ -90,11 +92,9 @@ resource "aws_instance" "portfolio_ec2" {
   ami                         = var.ec2_ami
   instance_type               = var.ec2_instance_type
   subnet_id                   = aws_subnet.public_subnet.id
-  vpc_security_group_ids      = [aws_security_group.portfolio_sg.id] # Fixed argument
+  vpc_security_group_ids      = [aws_security_group.portfolio_sg.id]
   associate_public_ip_address = true
-  #key_name                    = aws_key_pair.generated.key_name
-  key_name                     = "MyAWSKey"
-  
+  key_name                    = "MyAWSKey" # Use existing key pair
 
   tags = {
     Name = var.ec2_name
@@ -113,18 +113,13 @@ resource "aws_instance" "portfolio_ec2" {
               EOF
 }
 
-# TLS RSA Algorithm
+# TLS RSA Algorithm (still generating local private key, but no AWS key pair resource)
 resource "tls_private_key" "generated" {
   algorithm = "RSA"
 }
 
-# Generated EC2 AWS KEY
+# Save the private key locally
 resource "local_file" "private_key_pem" {
   content  = tls_private_key.generated.private_key_pem
   filename = "MyAWSKey.pem"
-}
-
-resource "aws_key_pair" "generated" {
-  key_name   = "MyAWSKey"
-  public_key = tls_private_key.generated.public_key_openssh
 }
