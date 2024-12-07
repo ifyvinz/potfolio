@@ -1,7 +1,7 @@
 # Base image for Python
 FROM python:3.10-slim
 
-# Set environment variables to prevent Python from buffering stdout and stdin
+# Set environment variables
 ENV PYTHONUNBUFFERED 1
 
 # Set the working directory

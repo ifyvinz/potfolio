@@ -1,0 +1,94 @@
+name: Deploy Django App with Terraform and Docker Compose
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Django App
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    # Step 3: Install Python dependencies
+    - name: Install Dependencies
+      working-directory: ./portfolio_backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r ../requirements.txt
+
+    # Step 4: Run tests
+    - name: Run Tests
+      working-directory: ./portfolio_backend
+      run: python manage.py test
+
+    # Step 5: Configure AWS credentials for Terraform
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
+
+    # Step 6: Install Terraform
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.4.6
+
+    # Step 7: Terraform init, plan, and apply
+    - name: Terraform Init
+      working-directory: ./terraform
+      run: terraform init
+
+    - name: Terraform Plan
+      working-directory: ./terraform
+      run: terraform plan
+
+    - name: Terraform Apply
+      working-directory: ./terraform
+      run: terraform apply -auto-approve
+
+    # Step 8: Fetch EC2 Public IP
+    - name: Fetch EC2 Public IP
+      id: output
+      working-directory: ./terraform
+      run: echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+
+    # Step 9: Set environment secrets for Docker Compose
+    - name: Set Environment Variables for Docker Compose
+      run: |
+        echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
+        echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+        echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+        echo POSTGRES_HOST=db >> .env
+        echo POSTGRES_PORT=5432 >> .env
+        echo DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }} >> .env
+        echo DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }} >> .env
+        echo DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }} >> .env
+        echo EMAIL_HOST_PASSWORD= $${{secrets.EMAIL_HOST_PASSWORD }} >> .env
+
+    # Step 10: Deploy Docker Compose services on EC2
+    - name: Deploy Docker Compose Services
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ubuntu@${{ env.EC2_IP }} << EOF
+          docker-compose down
+          docker-compose up -d
+        EOF
+
+    # Step 11: Post-deployment verification
+    - name: Post-deploy Verification
+      run: |
+        echo "Deployment completed."
+        echo "Application is available at http://${{ env.EC2_IP }}/"
