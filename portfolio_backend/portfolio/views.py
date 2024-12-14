@@ -114,6 +114,15 @@ def logout_view(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+from django.shortcuts import render
+
+def index(request):
+    context = {
+        'message': "Compliment of the Season!"
+    }
+    return render(request, 'portfolio/index.html', context)
+
+
 
 
 # Profile Views

@@ -4,19 +4,25 @@ FROM python:3.10-slim
 # Set environment variables
 ENV PYTHONUNBUFFERED 1
 
-# Set the working directory
-WORKDIR /app
+# Set the working directory to /app/portfolio_backend
+WORKDIR /app/portfolio_backend
 
-# Install system dependencies for PostgreSQL
+# Install system dependencies for PostgreSQL (even if using SQLite, it's good practice)
 RUN apt-get update && apt-get install -y \
     libpq-dev gcc \
     --no-install-recommends && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy the requirements file from the root directory to the container
 COPY requirements.txt /app/
-RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the Django project files into the container
+# Install Python dependencies
+RUN pip install --upgrade pip && pip install -r /app/requirements.txt
+
+COPY wait-for-it.sh /usr/bin/wait-for-it
+RUN chmod +x /usr/bin/wait-for-it
+
+
+# Copy the entire Django project files into the container
 COPY . /app/
 
 # Collect static files

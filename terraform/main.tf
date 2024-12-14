@@ -93,13 +93,14 @@ resource "aws_security_group" "portfolio_sg" {
 }
 
 # EC2 Instance
+# EC2 Instance
 resource "aws_instance" "portfolio_ec2" {
   ami                         = var.ec2_ami
   instance_type               = var.ec2_instance_type
   subnet_id                   = aws_subnet.public_subnet.id
   vpc_security_group_ids      = [aws_security_group.portfolio_sg.id]
   associate_public_ip_address = true
-  key_name                    = "Portfolio_Key" # Use the new key pair name
+  key_name                    = aws_key_pair.generated.key_name # Use the generated key for EC2 instance
 
   tags = {
     Name = var.ec2_name
@@ -112,7 +113,7 @@ resource "aws_instance" "portfolio_ec2" {
               sudo apt-get install -y docker.io git
               sudo systemctl start docker
               sudo systemctl enable docker
-              git clone https://github.com/ifyvinz/potfolio.git /home/ubuntu/app
+              git clone https://github.com/ifyvinz/portfolio.git /home/ubuntu/app
               cd /home/ubuntu/app
               docker-compose up -d
               EOF
@@ -127,4 +128,13 @@ resource "tls_private_key" "generated" {
 resource "local_file" "private_key_pem" {
   content  = tls_private_key.generated.private_key_pem
   filename = "MyAWSKey.pem"
+}
+
+resource "aws_key_pair" "generated" {
+  key_name   = "MyAWSKey"
+  public_key = tls_private_key.generated.public_key_openssh
+
+  lifecycle {
+    ignore_changes = [key_name]
+  }
 }
