@@ -15,8 +15,9 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      # Step 1: Check out the repository
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -52,15 +53,21 @@ jobs:
           docker build -t $DOCKER_IMAGE .
           docker push $DOCKER_IMAGE
 
-      # Step 6: SSH into EC2 and deploy Dockerized app
+      # Step 6: Set up SSH key for EC2 access
+      - name: Set up SSH key
+        run: |
+          echo "$EC2_SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+      # Step 7: SSH into EC2 and deploy Dockerized app
       - name: SSH to EC2 and deploy Dockerized app
         uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{ secrets.AWS_EC2_IP }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: private_key.pem
           script: |
-            # Navigate to the project directory
+            # Navigate to the project directory or clone the repository if not already there
             cd /home/ubuntu/app || git clone https://github.com/ifyvinz/portfolio.git /home/ubuntu/app
 
             # Pull the latest Docker image

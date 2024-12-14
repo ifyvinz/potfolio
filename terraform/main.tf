@@ -100,7 +100,8 @@ resource "aws_instance" "portfolio_ec2" {
   subnet_id                   = aws_subnet.public_subnet.id
   vpc_security_group_ids      = [aws_security_group.portfolio_sg.id]
   associate_public_ip_address = true
-  key_name                    = aws_key_pair.generated.key_name # Use the generated key for EC2 instance
+
+  key_name = "Portfolio_Key"
 
   tags = {
     Name = var.ec2_name
