@@ -38,11 +38,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 #DEBUG = True
 DEBUG=False
 #ALLOWED_HOSTS = ['www.ifyvinz.com', 'ifyvinz.com', 'localhost', '127.0.0.1', 'app', '0.0.0.0']
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1",).split(" ")
-
-
-
-
+#ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1",).split(" ")
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "ifyvinz.com 35.158.210.47",).split(" ")
 
 #ALLOWED_HOSTS = []
 

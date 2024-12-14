@@ -93,7 +93,6 @@ resource "aws_security_group" "portfolio_sg" {
 }
 
 # EC2 Instance
-# EC2 Instance
 resource "aws_instance" "portfolio_ec2" {
   ami                         = var.ec2_ami
   instance_type               = var.ec2_instance_type
@@ -107,18 +106,53 @@ resource "aws_instance" "portfolio_ec2" {
     Name = var.ec2_name
   }
 
-  # Install Docker and run the application
+  # Install Docker, create .env, and run the application
   user_data = <<-EOF
               #!/bin/bash
-              sudo apt-get update -y
-              sudo apt-get install -y docker.io git
+              # Update system and install Docker
+              sudo yum update -y
+              sudo amazon-linux-extras enable docker
+              sudo yum install -y docker git
               sudo systemctl start docker
               sudo systemctl enable docker
-              git clone https://github.com/ifyvinz/portfolio.git /home/ubuntu/app
-              cd /home/ubuntu/app
+
+              # Clone the repository
+              git clone https://github.com/ifyvinz/portfolio.git /home/ec2-user/app
+              cd /home/ec2-user/app
+
+              # Create the .env file
+              cat <<EOT >> .env
+              # PostgreSQL database configuration
+              POSTGRES_DB=portfolio_db
+              POSTGRES_USER=portfolio_user
+              POSTGRES_PASSWORD=showtime22
+              POSTGRES_PORT=5432
+              POSTGRES_HOST=db
+
+              # Email server credentials
+              EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+              EMAIL_HOST=smtp.gmail.com
+              EMAIL_PORT=587
+              EMAIL_USE_TLS=True
+              EMAIL_HOST_USER=ifyvinz@gmail.com
+              EMAIL_HOST_PASSWORD=dgbt lpll ivyk viwz
+              DEFAULT_FROM_EMAIL=\$EMAIL_HOST_USER
+
+              # Django Create Super User
+              DJANGO_SUPERUSER_EMAIL=ifyvinz@gmail.com
+              DJANGO_SUPERUSER_USERNAME=ifyvinz
+              DJANGO_SUPERUSER_PASSWORD=showtime22
+
+              SECRET_KEY=django-insecure-ray=q=pn3re_h547_lkla&8%m3eenx5r=4=ec&=&yj=n^-*)l7
+              DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 www.ifyvinz.com ifyvinz.com localhost 127.0.0.1 app 0.0.0.0 [::1]
+              EOT
+
+              # Start the application using Docker Compose
               docker-compose up -d
               EOF
 }
+
+
 
 # TLS RSA Algorithm (still generating local private key, but no AWS key pair resource)
 resource "tls_private_key" "generated" {
