@@ -9,7 +9,7 @@ env:
   AWS_REGION: "eu-central-1"  # Update as needed
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_EC2_IP: ${{ secrets.EC2_IP }}  # EC2 Public IP (or Private if you use SSH tunneling)
+  AWS_EC2_IP: ${{ secrets.AWS_EC2_IP }}  # EC2 Public IP (or Private if you use SSH tunneling)
   DOCKER_IMAGE: "bravemind05/portfolio:latest"  # Docker image name
 
 jobs:
@@ -56,7 +56,7 @@ jobs:
       # Step 6: Set up SSH key for EC2 access
       - name: Set up SSH key
         run: |
-          echo "$EC2_SSH_KEY" > private_key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
       # Step 7: SSH into EC2 and deploy Dockerized app
